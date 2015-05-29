@@ -49,8 +49,8 @@ std::string IPDB::Find(const std::string& ip) const {
       (uint64_t*)(index + 1024) + le32toh(*(uint32_t*)(index + top * 4));
   uint64_t* end = top != 255
                       ? (uint64_t*)(index + 1024) +
-                            le32toh(*(uint32_t*)(index + (top + 1) * 4))
-                      : (uint64_t*)((char*)m_ + offset_ - 1024);
+                            le32toh(*(uint32_t*)(index + (top + 1) * 4)) - 1
+                      : (uint64_t*)((char*)m_ + offset_ - 1024) - 1;
   while (start < end) {
     uint64_t* mid = start + (end - start) / 2;
     uint32_t _ip = be32toh(*(uint32_t*)mid);
