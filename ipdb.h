@@ -22,4 +22,4 @@ class IPDB {
   uint32_t offset_;
 };
 
-#endif // IPDB_IP_H_
+#endif  // IPDB_IP_H_
