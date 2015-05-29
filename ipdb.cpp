@@ -1,13 +1,15 @@
 #include "ipdb.h"
+#include <cerrno>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <endian.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include <stdexcept>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <stdexcept>
 
 IPDB::IPDB(const char* filename)
 {
@@ -69,7 +71,7 @@ uint32_t IPDB::IP2Long(const std::string& ip) const
       throw std::runtime_error("invalid ip");
     }
     pos = pos!=-1?pos:ip.length();
-    int x = stoi(ip.substr(prev+1, pos-prev-1));
+    int x = atoi(ip.substr(prev+1, pos-prev-1).c_str());
     if ((x&~0xFF)!=0) {
       throw std::runtime_error("invalid ip");
     }
