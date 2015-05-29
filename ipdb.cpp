@@ -18,11 +18,13 @@ IPDB::IPDB(const char* filename)
   struct stat buf;
   bzero(&buf, sizeof(buf));
   if (fstat(fd_, &buf)<0) {
+    close(fd_);
     throw std::runtime_error(strerror(errno));
   }
   size_ = buf.st_size;
   m_ = mmap(0, size_, PROT_READ|PROT_WRITE, MAP_SHARED, fd_, 0);
   if (!m_) {
+    close(fd_);
     throw std::runtime_error(strerror(errno));
   }
   offset_ = be32toh(*(uint32_t*)m_);
