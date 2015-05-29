@@ -67,7 +67,6 @@ std::string IPDB::Find(const std::string& ip) const {
   uint8_t d_len = t >> 24;
   const char* r = (char*)m_ + offset_ + d_offset - 1024;
   return std::string(r, d_len);
-  throw std::runtime_error("invalid ip");
 }
 
 uint32_t IPDB::IP2Long(const std::string& ip) const {
