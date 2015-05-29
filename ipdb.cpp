@@ -1,4 +1,5 @@
 #include "ipdb.h"
+#include <iostream>
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
@@ -46,18 +47,27 @@ std::string IPDB::Find(const std::string& ip) const
 {
   uint32_t nip = IP2Long(ip);
   const char* index = (char*)m_ + 4;
-  uint32_t start = le32toh(*(uint32_t*)(index + (nip >> 24)*4));
-  const uint32_t* q = (uint32_t*)(index + 1024) + start*2;
-  const uint32_t* limit = (uint32_t*)((char*)m_ + offset_ - 1024);
-  for (; q<limit; q+=2) {
-    if (be32toh(*q) >= nip) {
-      uint32_t t = le32toh(*(q + 1));
-      uint32_t d_offset = t & 0x00FFFFFF;
-      uint8_t d_len = t >> 24;
-      const char* r = (char*)m_ + offset_ + d_offset - 1024;
-      return std::string(r, d_len);
+  uint8_t top = nip>>24;
+  uint64_t* start = (uint64_t*)(index + 1024) + le32toh(*(uint32_t*)(index + top*4));
+  uint64_t* end = top!=255
+    ?(uint64_t*)(index + 1024) + le32toh(*(uint32_t*)(index + (top+1)*4))
+    :(uint64_t*)((char*)m_ + offset_ - 1024);
+  while (start<end) {
+    uint64_t* mid = start + (end - start)/2;
+    uint32_t _ip = be32toh(*(uint32_t*)mid);
+    if (_ip > nip) {
+      end = mid;
+    } else if (_ip < nip){
+      start = mid + 1;
+    } else {
+      start = end = mid;
     }
   }
+  uint32_t t = le32toh(*((uint32_t*)start + 1));
+  uint32_t d_offset = t & 0x00FFFFFF;
+  uint8_t d_len = t >> 24;
+  const char* r = (char*)m_ + offset_ + d_offset - 1024;
+  return std::string(r, d_len);
   throw std::runtime_error("invalid ip");
 }
 
