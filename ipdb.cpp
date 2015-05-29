@@ -71,13 +71,22 @@ uint32_t IPDB::IP2Long(const std::string& ip) const
       throw std::runtime_error("invalid ip");
     }
     pos = pos!=-1?pos:ip.length();
-    int x = atoi(ip.substr(prev+1, pos-prev-1).c_str());
+    if (pos-prev-1>3) {
+      throw std::runtime_error("invalid ip");
+    }
+    int x = 0;
+    for (prev++; prev!=pos; prev++) {
+      if (ip[prev]<'0'||ip[prev]>'9') {
+        throw std::runtime_error("invalid ip");
+      }
+      x *= 10;
+      x += ip[prev] - '0';
+    }
     if ((x&~0xFF)!=0) {
       throw std::runtime_error("invalid ip");
     }
     nip <<= 8;
     nip |= x & 0xFF;
-    prev = pos;
   }
   return nip;
 }
